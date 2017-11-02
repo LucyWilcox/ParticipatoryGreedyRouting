@@ -13,14 +13,7 @@ We will replicate the creation of hidden metric spaces within the network of nod
  <br><br>
 </p>
 
-We will add to this a history, from which we will determine cooperation based on a the ratio of prior cooperation/defection and the last action. From this we will see if including reputation improves the probability of a high performance end state at each breakdown and cooperation rate. We also plan to track how many packages each node passes and see how this changes with reputation. To examine this we can graph a PDF and/or CDF distribution to identify changes.
-
-<p align="center">
-<img src="https://raw.githubusercontent.com/LucyWilcox/ParticipatoryGreedyRouting/master/reports/pdf_predict.jpg">
- <br><br>
-</p>
-
-This is our predicted PDF, where reputation would direct more messages through a smaller number of nodes, creating a more long-tailed distribution.
+We will add to this a history, from which we will determine cooperation based on a the ratio of prior cooperation/defection and the last action. From this we will see if including reputation improves the probability of a high performance end state at each breakdown and cooperation rate. We also plan to track how many packages each node passes and see how this changes with reputation. To examine this we can graph a PDF and/or CDF distribution to identify changes. We predict reputation would direct more messages through a smaller number of nodes, creating a more long-tailed distribution.
 
 There is a lot of math in the paper, and some of it is easier to parse through than other parts. However, we feel like the paper outlines what is going on well enough that we can follow it relatively easily. The reputation system is similar enough to the IPD that we are fairly confident. We are both frequently off-campus, so we plan on staying in communication over Messenger. Lucy will do make the base of the replication and document it this weekend. Kaitlyn will continue off of this over the following week.  We will both meet on Monday to make sure we are on the same page. We intend to have the greedy routing replication (without the participatory element) done by next Friday, with a stretch goal of adding participation based on cost-benefit analysis. If this does not get completed, we will implement it over the next week. We worked similarly last time and it worked out well. We plan to keep a list of tasks in our README, so that it is easy for us to see what needs to be done next.
 

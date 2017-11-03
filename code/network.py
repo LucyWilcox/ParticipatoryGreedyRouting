@@ -124,6 +124,7 @@ def update(network):
 		prob = Decimal(1) / Decimal(1 + ediff)
 		strat = np.random.choice([neighbor.strat, n.strat], p=[prob, 1-prob])
 		n.set_strat(strat)
+	for n in ns:
 		n.points = 0
 
 def run(c, b):

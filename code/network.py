@@ -124,6 +124,7 @@ def update(network):
 		prob = Decimal(1) / Decimal(1 + ediff)
 		strat = np.random.choice([neighbor.strat, n.strat], p=[prob, 1-prob])
 		n.set_strat(strat)
+		n.points = 0
 
 def run(c, b):
 	network = initialize(c)
@@ -143,6 +144,6 @@ def run(c, b):
 		print c, d
 
 
-# run(.7, 4000) # seems to edge up a bit with this but barely...
-run(.4, 2) # doesn't really go down..
+#run(.5, 200) # does seem to go up over time
+run(.5, 2) # seems to go down 
 

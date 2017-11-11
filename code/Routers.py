@@ -2,6 +2,8 @@ import numpy as np
 import networkx as nx
 import CityViewer
 from scipy.signal import correlate2d
+import operator
+import copy
 
 class RouterBase(object):
 
@@ -45,8 +47,10 @@ class RouterBase(object):
 		"""
 		
 		# Increase latency of self and the other router (simple model)
-		self.latency += 1
-		other_router.latency += 1
+		# self.latency += 1 # NOTE: I think that maybe this should be set to the latency of other_router + 1
+		if isinstance(other_router, PersonalRouter):
+			other_router.latency += 1 # if other_router is a super node this should stay 0 or something
+		self.latency = other_router.latency + 1
 
 		# Add edge (future use?)
 		self.graph.add_edge(self, other_router)
@@ -138,7 +142,7 @@ class SuperRouter(RouterBase):
 	def search_for_connection(self, city):
 		""" Searches for any non-connected router in range and connects """
 		search_spaces = self.wifi_range()
-		print("Router starts...")
+		#print("Router starts...")
 		for space in search_spaces:
 			if space in city.occupied:
 				other_router = city.search_for_loc(space, city.no_wifi_routers)
@@ -150,10 +154,27 @@ class SuperRouter(RouterBase):
 class PersonalRouter(RouterBase):
 
 	def __init__(self, graph, array, loc):
-		friendliness = np.random.randint(1, 10)
+		friendliness = np.random.randint(1, 15) # TODO: Lucy's going to test this with some different values
 		range_access = 5
 		RouterBase.__init__(self, graph, array, loc, range_access, friendliness)
 		self.has_wifi = False
+
+	def stop_sharing(self, city):
+		neighbors = list(self.graph.neighbors(self))
+		neighbors.sort(key=operator.attrgetter('latency'))
+		lowest_neighbor = neighbors[0]
+		rest_neighbor = neighbors[1:]
+		# remove wifi from routers and they check for new connections in the next part of step
+		for neighbor in rest_neighbor:
+			try:
+				city.has_wifi_routers.remove(neighbor)
+			except Exception as e:
+				pass
+			city.no_wifi_routers.append(neighbor)
+			self.graph.remove_edge(self, neighbor)
+
+		self.friendliness = 0
+
 
 class City(object):
 
@@ -174,6 +195,8 @@ class City(object):
 		self.has_wifi_spaces = set()
 		self.occupied = set()
 		self.super_routers_loc = []
+
+		self.stop_thresh = self.params.get('stop_thresh')
 
 		self.place_super_routers()
 		num_routers = self.params.get('num_routers', self.n//5)
@@ -198,7 +221,7 @@ class City(object):
 		self.super_routers = [SuperRouter(self.graph, self.array, tuple(locs[i])) 
 					   for i in range(num_super_routers)]
 
-		# For each super router, addb it and its range
+		# For each super router, add it and its range
 		for router in self.super_routers:
 			self.occupied.add(router.loc)
 			self.super_routers_loc.append(router.loc)
@@ -208,7 +231,7 @@ class City(object):
 
 	def place_router(self):
 		new_router = PersonalRouter(self.graph, self.array, self.random_loc())
-		print("Placing...")
+		#print("Placing...")
 		new_router.search_for_connection(self)
 		if new_router.has_wifi:
 			pass
@@ -232,11 +255,14 @@ class City(object):
 		for super_router in self.super_routers:
 			super_router.search_for_connection(self)
 
+		for router in self.has_wifi_routers:
+			if router.latency >= router.friendliness * self.stop_thresh and len(list(self.graph.neighbors(router))) > 1:
+				router.stop_sharing(self)
+
 		random_order = np.random.permutation(self.no_wifi_routers)
 		for router in random_order:            
 			# execute one step
 			router.search_for_connection(self)
-
 
 		for _ in range(self.num_routers_per_step):
 			self.place_router()
@@ -287,11 +313,22 @@ def make_visible_locs(array, loc, vision):
 	return np.argwhere(can_see > 0)
 
 if __name__ == '__main__':
-	city = City(50, num_routers = 15)
-	for _ in range(10):
-		city.step()
-		viewer = CityViewer.CityViewer(city)
+	# city = City(100, num_routers = 15, stop_thresh=3)
+	# for _ in range(100):
+	# 	city.step()
+	# viewer = CityViewer.CityViewer(city)
+	# viewer.draw()
+
+	stop_threshes = [1, 3, 5, 10]
+	city = City(100, num_routers = 15)
+	for stop_thresh in stop_threshes:
+		city_copy = copy.deepcopy(city)
+		city_copy.stop_thresh = stop_thresh
+		for _ in range(100):
+			city_copy.step()
+		viewer = CityViewer.CityViewer(city_copy)
 		viewer.draw()
+
 	# ratios = []
 	# for _ in range(20):
 	# 	ratios.append(city.step())

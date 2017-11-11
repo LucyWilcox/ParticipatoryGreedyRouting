@@ -34,6 +34,8 @@ class CityViewer:
         
         grid: boolean, whether to draw grid lines
         """
+        for loc in self.viewee.has_wifi_spaces:
+            self.viewee.array[loc] = 5
         self.draw_array(self.viewee.array, origin='lower')
         self.draw_agents()
         plt.show()
@@ -61,16 +63,16 @@ class CityViewer:
 
         u_rows, u_cols = np.transpose([router.loc for router in unconnected_routers])
 
-        s_rows, s_cols = np.transpose([loc for loc in self.viewee.super_routers])
+        s_rows, s_cols = np.transpose([loc for loc in self.viewee.super_routers_loc])
 
-        xs_c = c_cols
-        ys_c = c_rows
+        xs_c = c_cols + 0.5
+        ys_c = c_rows + .05
 
-        xs_u = u_cols
-        ys_u = u_rows
+        xs_u = u_cols + 0.5
+        ys_u = u_rows + 0.5
 
-        xs_s = s_cols
-        ys_s = s_rows
+        xs_s = s_cols + 0.5
+        ys_s = s_rows + 0.5
 
         return xs_c, xs_u, xs_s, ys_c, ys_u, ys_s
 

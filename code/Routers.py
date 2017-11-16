@@ -167,14 +167,25 @@ class PersonalRouter(RouterBase):
 		# remove wifi from routers and they check for new connections in the next part of step
 		for neighbor in rest_neighbor:
 			try:
-				city.has_wifi_routers.remove(neighbor)
+				neighbor.disconnect(self, city)
+				#city.has_wifi_routers.remove(neighbor)
 			except Exception as e:
 				pass
-			city.no_wifi_routers.append(neighbor)
-			self.graph.remove_edge(self, neighbor)
+			#city.no_wifi_routers.append(neighbor)
+			#self.graph.remove_edge(self, neighbor)
 
 		self.friendliness = 0
 
+	def disconnect(self, other_router, city):
+		self.latency = 0
+		city.has_wifi_routers.remove(self)
+		city.no_wifi_routers.append(self)
+		self.graph.remove_edge(other_router, self)
+		for neighbor in self.neighbors:
+			try:
+				neighbor.disconnect(self, city)
+			except Exception as e:
+				pass
 
 class City(object):
 
@@ -324,7 +335,7 @@ if __name__ == '__main__':
 	for stop_thresh in stop_threshes:
 		city_copy = copy.deepcopy(city)
 		city_copy.stop_thresh = stop_thresh
-		for _ in range(100):
+		for _ in range(10):
 			city_copy.step()
 		viewer = CityViewer.CityViewer(city_copy)
 		viewer.draw()

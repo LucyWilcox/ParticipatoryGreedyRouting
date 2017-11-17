@@ -122,8 +122,9 @@ class RouterBase(object):
 					pass
 
 	def update_latency(self):
+		# does a df update which makes each child router have the latency
+		# of its parent plus one
 		neighbors = list(self.graph.neighbors(self))
-		print(neighbors)
 		seen = neighbors
 		queue = collections.deque(neighbors)
 		while queue:
@@ -355,7 +356,7 @@ if __name__ == '__main__':
 	for stop_thresh in stop_threshes:
 		city_copy = copy.deepcopy(city)
 		city_copy.stop_thresh = stop_thresh
-		for _ in range(10):
+		for _ in range(100):
 			city_copy.step()
 		viewer = CityViewer.CityViewer(city_copy)
 		viewer.draw()

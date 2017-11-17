@@ -121,11 +121,11 @@ class RouterBase(object):
 				except AttributeError:
 					pass
 
-	def update_latency(self):
+	def update_latency_old(self):
 		# does a df update which makes each child router have the latency
 		# of its parent plus one
 		neighbors = list(self.graph.neighbors(self))
-		seen = neighbors
+		seen = set(neighbors)
 		queue = collections.deque(neighbors)
 		while queue:
 			node = queue.popleft()
@@ -136,6 +136,15 @@ class RouterBase(object):
 				if node not in seen:
 					queue.append(neighbor)
 					seen.add(neighbor)
+
+	def update_latency(self):
+	# does a recursive update which makes each child router have the latency
+	# of its parent plus one
+		neighbors = list(self.graph.neighbors(self))
+		if len(neighbors) is 0:
+			
+			return 1
+
 
 class SuperRouter(RouterBase):
 	""" Creates a Router that has a range of 20

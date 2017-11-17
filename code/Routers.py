@@ -4,6 +4,7 @@ import CityViewer
 from scipy.signal import correlate2d
 import operator
 import copy
+import collections
 
 class RouterBase(object):
 
@@ -120,6 +121,22 @@ class RouterBase(object):
 						break
 				except AttributeError:
 					pass
+
+	def update_latency(self):
+		# does a df update which makes each child router have the latency
+		# of its parent plus one
+		neighbors = list(self.graph.neighbors(self))
+		seen = neighbors
+		queue = collections.deque(neighbors)
+		while queue:
+			node = queue.popleft()
+			parent_latency = node.latency
+			for neighbor in node.graph.neighbors(node):
+				if neighbor.latency <= parent_latency:
+					neighbor.latency = parent_latency + 1
+				if node not in seen:
+					queue.append(neighbor)
+					seen.add(neighbor)
 
 class SuperRouter(RouterBase):
 	""" Creates a Router that has a range of 20
@@ -291,6 +308,10 @@ class City(object):
 
 		for _ in range(self.num_routers_per_step):
 			self.place_router()
+
+		for super_router in self.super_routers:
+			super_router.update_latency()
+
 		return len(self.has_wifi_routers)/(len(self.has_wifi_routers) + len(self.no_wifi_routers))
 
 	def search_for_super(self, loc):
@@ -349,7 +370,7 @@ if __name__ == '__main__':
 	for stop_thresh in stop_threshes:
 		city_copy = copy.deepcopy(city)
 		city_copy.stop_thresh = stop_thresh
-		for _ in range(10):
+		for _ in range(100):
 			city_copy.step()
 		viewer = CityViewer.CityViewer(city_copy)
 		viewer.draw()

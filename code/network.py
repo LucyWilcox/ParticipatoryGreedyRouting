@@ -87,16 +87,16 @@ def path(i, j):
 		for j_n in i.neighbors:
 			diff_t = math.pi - abs(math.pi - abs(i.theta - j_n.theta))
 			x_ij = math.acosh(math.cosh(i.r)*math.cosh(j_n.r) - math.sinh(i.r)*math.sinh(j_n.r)*math.cos(diff_t)) # TODO: check that this is right, no j??
-			if x_ij < min_j:
+			if x_ij < min_j_v:
 				min_j_v = x_ij
 				min_j = j_n
-		if j_n in participants:
+		if min_j in participants:
 			return []
-		elif j_n.strat is 'D':
+		elif min_j.strat is 'D':
 			return []
 		else:
-			j_n.points -= 1
-			participants.append(j_n)
+			min_j.points -= 1
+			participants.append(min_j)
 
 	return participants
 
@@ -105,8 +105,9 @@ def navigation(network, b):
 	for _ in range(len(ns)):
 		i, j = np.random.choice(ns, 2)
 		participants = path(i, j)
-		if participants:
+		if len(participants) > 0:
 			reward = float(b)/len(participants)
+			print("Success!", reward)
 			for p in participants:
 				p.points += reward
 
@@ -127,11 +128,13 @@ def update(network):
 		n.points = 0
 
 def run(c, b):
+	print("Program begins...")
 	network = initialize(c)
+	print("Network Initialized")
 	# for n in network.nodes:
 	# 	print n.neighbors, n.degree
 	#just to see over time:
-	for _ in range(1000): #1000 is just something I picked
+	for _ in range(100): #1000 is just something I picked
 		navigation(network, b)
 		update(network)
 		c = 0
@@ -142,7 +145,7 @@ def run(c, b):
 					c += 1
 				if n.strat == 'D':
 					d += 1
-		print c, d
+		print(c, d)
 
 
 #run(.5, 200) # does seem to go up over time

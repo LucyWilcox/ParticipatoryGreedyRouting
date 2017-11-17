@@ -50,10 +50,11 @@ class RouterBase(object):
 		# self.latency += 1 # NOTE: I think that maybe this should be set to the latency of other_router + 1
 		if isinstance(other_router, PersonalRouter):
 			other_router.latency += 1 # if other_router is a super node this should stay 0 or something
+			# Add edge (future use?)
+			self.graph.add_edge(other_router, self)
+		else:
+			self.graph.add_edge(self, other_router)
 		self.latency = other_router.latency + 1
-
-		# Add edge (future use?)
-		self.graph.add_edge(self, other_router)
 
 		# Check to see which thing needs to be updated
 		if not self.has_wifi and other_router.has_wifi:
@@ -167,7 +168,7 @@ class PersonalRouter(RouterBase):
 		# remove wifi from routers and they check for new connections in the next part of step
 		for neighbor in rest_neighbor:
 			try:
-				neighbor.disconnect(self, city)
+				num_disconnected = neighbor.disconnect(self, city)
 				#city.has_wifi_routers.remove(neighbor)
 			except Exception as e:
 				pass
@@ -175,17 +176,30 @@ class PersonalRouter(RouterBase):
 			#self.graph.remove_edge(self, neighbor)
 
 		self.friendliness = 0
+		self.latency -= num_disconnected
 
 	def disconnect(self, other_router, city):
+		""" Disconnects self and all routers connected
+		to self. Returns the number of routers disconnected.
+		"""
 		self.latency = 0
+		disconnected = 1
 		city.has_wifi_routers.remove(self)
 		city.no_wifi_routers.append(self)
 		self.graph.remove_edge(other_router, self)
-		for neighbor in self.neighbors:
+		for neighbor in self.graph.neighbors(self):
 			try:
-				neighbor.disconnect(self, city)
+				disconnected += neighbor.disconnect(self, city)
 			except Exception as e:
 				pass
+		return disconnected
+
+	def update_latency(self, last_router):
+		""" Checks to see who has the lowest latency and
+		whether or not it should disconnect """
+		for neighbor in self.graph.neighbors(self):
+			if neighbor is not last_router:
+
 
 class City(object):
 
@@ -198,7 +212,7 @@ class City(object):
 		params: dictionary of parameters
 		"""
 		self.n = n
-		self.graph = nx.Graph()
+		self.graph = nx.DiGraph()
 		self.array = np.zeros((n,n))
 		self.params = params
 		self.no_wifi_routers = []

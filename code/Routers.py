@@ -5,6 +5,7 @@ from scipy.signal import correlate2d
 import operator
 import copy
 import collections
+import RouterGraphs
 
 class RouterBase(object):
 
@@ -392,16 +393,27 @@ if __name__ == '__main__':
     #   city.step()
     # viewer = CityViewer.CityViewer(city)
     # viewer.draw()
-
-    stop_threshes = [1, 3, 5, 10]
+    stop_threshes = [1, 3] #, 5, 10]
+    stop_thresh_nums = dict.fromkeys(stop_threshes)
     city = City(100, num_routers = 15)
     for stop_thresh in stop_threshes:
+        num_routers = []
+        num_connected = []
+        num_disconnected = []
+        num_connected_spaces = []
         city_copy = copy.deepcopy(city)
         city_copy.stop_thresh = stop_thresh
-        for _ in range(100):
+        for _ in range(10):
             city_copy.step()
+            num_routers.append(len(city_copy.occupied))
+            num_connected.append(len(city_copy.has_wifi_routers))
+            num_disconnected.append(len(city_copy.no_wifi_routers))
+            num_connected_spaces.append(len(city_copy.has_wifi_spaces))
+        stop_thresh_nums[stop_thresh] = (num_routers, num_connected, num_disconnected, num_connected_spaces)
         viewer = CityViewer.CityViewer(city_copy)
         viewer.draw()
+    RouterGraphs.for_now(stop_thresh_nums)
+
 
     # ratios = []
     # for _ in range(20):

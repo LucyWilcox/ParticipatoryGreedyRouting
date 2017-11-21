@@ -201,7 +201,7 @@ class SuperRouter(RouterBase):
 class PersonalRouter(RouterBase):
 
     def __init__(self, graph, array, loc):
-        friendliness = np.random.randint(1, 15) # TODO: Lucy's going to test this with some different values
+        friendliness = np.random.randint(10, 20) # TODO: Lucy's going to test this with some different values
         range_access = 5
         RouterBase.__init__(self, graph, array, loc, range_access, friendliness)
         self.has_wifi = False
@@ -327,7 +327,7 @@ class City(object):
             super_router.search_for_connection(self)
 
         for router in self.has_wifi_routers:
-            if router.latency >= router.friendliness * self.stop_thresh and len(list(self.graph.neighbors(router))) > 1:
+            if router.latency >= (router.friendliness * self.stop_thresh) and len(list(self.graph.neighbors(router))) > 1:
                 router.stop_sharing(self)
 
         random_order = np.random.permutation(self.no_wifi_routers)
@@ -393,7 +393,7 @@ if __name__ == '__main__':
     #   city.step()
     # viewer = CityViewer.CityViewer(city)
     # viewer.draw()
-    stop_threshes = [1, 3] #, 5, 10]
+    stop_threshes = [1, 3, 5, 10]
     stop_thresh_nums = dict.fromkeys(stop_threshes)
     city = City(100, num_routers = 15)
     for stop_thresh in stop_threshes:
@@ -401,18 +401,26 @@ if __name__ == '__main__':
         num_connected = []
         num_disconnected = []
         num_connected_spaces = []
-        city_copy = copy.deepcopy(city)
-        city_copy.stop_thresh = stop_thresh
-        for _ in range(10):
-            city_copy.step()
-            num_routers.append(len(city_copy.occupied))
-            num_connected.append(len(city_copy.has_wifi_routers))
-            num_disconnected.append(len(city_copy.no_wifi_routers))
-            num_connected_spaces.append(len(city_copy.has_wifi_spaces))
+        for i in range(100): # test on different cities
+            num_routers.append([])
+            num_connected.append([])
+            num_disconnected.append([])
+            num_connected_spaces.append([])
+            city_copy = copy.deepcopy(city)
+            city_copy.stop_thresh = stop_thresh
+            for _ in range(200): #steps
+                city_copy.step()
+                num_routers[-1].append(len(city_copy.occupied))
+                num_connected[-1].append(len(city_copy.has_wifi_routers))
+                num_disconnected[-1].append(len(city_copy.no_wifi_routers))
+                num_connected_spaces[-1].append(len(city_copy.has_wifi_spaces))
+
+            # viewer = CityViewer.CityViewer(city_copy)
+            # viewer.draw()
         stop_thresh_nums[stop_thresh] = (num_routers, num_connected, num_disconnected, num_connected_spaces)
-        viewer = CityViewer.CityViewer(city_copy)
-        viewer.draw()
-    RouterGraphs.for_now(stop_thresh_nums)
+    RouterGraphs.graph_routers(stop_thresh_nums)
+    # viewer = CityViewer.CityViewer(city_copy)
+    # viewer.draw()
 
 
     # ratios = []

@@ -11,6 +11,7 @@ COLORS = ['#8dd3c7','#ffffb3','#bebada','#fb8072','#80b1d3','#fdb462',
 
 def graph_routers(data):
 	for k, v in data.items():
+		print(k)
 		v_0 = v[0]
 		v_0_z = [sum(x) for x in zip(*v_0)]
 		v_1 = v[1]

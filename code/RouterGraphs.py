@@ -18,8 +18,8 @@ def graph_routers(data):
 		v_1_z = [sum(x) for x in zip(*v_1)]
 		v_2 = v[2]
 		v_2_z = [sum(x) for x in zip(*v_2)]
-		v_3 = v[3]
-		v_3_z = [sum(x) for x in zip(*v_3)]
+		# v_3 = v[3]
+		# v_3_z = [sum(x) for x in zip(*v_3)]
 		
 		x_axis = range(len(v_0_z))
 		all_r = plt.plot(x_axis, v_0_z, 's', label="all routers")
@@ -32,10 +32,10 @@ def graph_routers(data):
 		plt.tight_layout()
 		plt.show()
 		# plt.savefig("numrouters")
-		plt.plot(x_axis, v_3_z, 's')
-		plt.ylabel("Num Spaces")
-		plt.xlabel("Steps")
-		plt.title("Connected Spaces per Step")
-		plt.tight_layout()
+		# plt.plot(x_axis, v_3_z, 's')
+		# plt.ylabel("Num Spaces")
+		# plt.xlabel("Steps")
+		# plt.title("Connected Spaces per Step")
+		# plt.tight_layout()
 		# plt.savefig("numspaces")
-		plt.show()
+		# plt.show()

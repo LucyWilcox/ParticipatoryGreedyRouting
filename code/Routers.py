@@ -72,11 +72,11 @@ class RouterBase(object):
             city.has_wifi_routers.append(other_router)
 
         # Make sure both routers have their range shown
-        for space in self.wifi_range():
-            city.has_wifi_spaces.add(space)
+        # for space in self.wifi_range():
+        #     city.has_wifi_spaces.add(space)
 
-        for space in other_router.wifi_range():
-            city.has_wifi_spaces.add(space)
+        # for space in other_router.wifi_range():
+        #     city.has_wifi_spaces.add(space)
 
     def try_connection(self, other_router, city):
         """ Attempts to connect the two. """
@@ -284,7 +284,7 @@ class City(object):
         self.params = params
         self.no_wifi_routers = []
         self.has_wifi_routers = []
-        self.has_wifi_spaces = set()
+        #self.has_wifi_spaces = set()
         self.occupied = set()
         self.super_routers_loc = []
         self.multi_connect = multi_connect
@@ -318,9 +318,9 @@ class City(object):
         for router in self.super_routers:
             self.occupied.add(router.loc)
             self.super_routers_loc.append(router.loc)
-            for loc in router.wifi_range():
-                self.array[loc] = 5
-                self.has_wifi_spaces.add(tuple(loc))
+            # for loc in router.wifi_range():
+            #     self.array[loc] = 5
+            #     self.has_wifi_spaces.add(tuple(loc))
 
     def place_router(self):
         new_router = PersonalRouter(self.graph, self.array, self.random_loc(), self.multi_connect)
@@ -384,8 +384,8 @@ class City(object):
                 return router
         return None
 
-    def update_wifi_spaces(self):
-        self.has_wifi_spaces = set()
+    # def update_wifi_spaces(self):
+    #     self.has_wifi_spaces = set()
 
 
 def make_locs(n, m):
@@ -446,11 +446,11 @@ if __name__ == '__main__':
                 num_routers[-1].append(len(city_copy.occupied))
                 num_connected[-1].append(len(city_copy.has_wifi_routers))
                 num_disconnected[-1].append(len(city_copy.no_wifi_routers))
-                num_connected_spaces[-1].append(len(city_copy.has_wifi_spaces))
+                #num_connected_spaces[-1].append(len(city_copy.has_wifi_spaces))
 
             viewer = CityViewer.CityViewer(city_copy)
             viewer.draw()
-            stop_thresh_nums[stop_thresh] = (num_routers, num_connected, num_disconnected, num_connected_spaces)
+            stop_thresh_nums[stop_thresh] = (num_routers, num_connected, num_disconnected)#, num_connected_spaces)
     RouterGraphs.graph_routers(stop_thresh_nums)
     # viewer = CityViewer.CityViewer(city_copy)
     # viewer.draw()

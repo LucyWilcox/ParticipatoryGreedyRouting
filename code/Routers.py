@@ -53,7 +53,7 @@ class RouterBase(object):
         if isinstance(other_router, PersonalRouter):
             other_router.latency += 1 # if other_router is a super node this should stay 0 or something
             # Add edge (future use?)
-            self.graph.add_edge(self, other_router)
+            self.graph.add_edge(other_router, self)
         else:
             self.graph.add_edge(other_router, self)
         self.latency = other_router.latency + 1
@@ -112,32 +112,17 @@ class RouterBase(object):
                     break # Stops looking if it connects
                 except AttributeError:
                     pass
+        if not self.has_wifi:
+            for space in search_spaces:
+                if space in city.occupied: # otherwise, tries to connect to normal routers
+                    other_router = city.search_for_loc(space, city.has_wifi_routers)
+                    try:
+                        if other_router.has_wifi:
+                            self.try_connection(other_router, city)
+                            break
+                    except AttributeError:
+                        pass
 
-        for space in search_spaces:
-            if space in city.occupied: # otherwise, tries to connect to normal routers
-                other_router = city.search_for_loc(space, city.has_wifi_routers)
-                try:
-                    if other_router.has_wifi:
-                        self.try_connection(other_router, city)
-                        break
-                except AttributeError:
-                    pass
-
-    def update_latency_old(self):
-        # does a df update which makes each child router have the latency
-        # of its parent plus one
-        neighbors = list(self.graph.neighbors(self))
-        seen = set(neighbors)
-        queue = collections.deque(neighbors)
-        while queue:
-            node = queue.popleft()
-            parent_latency = node.latency
-            for neighbor in node.graph.neighbors(node):
-                if neighbor.latency <= parent_latency:
-                    neighbor.latency = parent_latency + 1
-                if node not in seen:
-                    queue.append(neighbor)
-                    seen.add(neighbor)
 
     def get_num_children(self, seen = set()):
         successors = list(self.graph.successors(self))
@@ -151,6 +136,18 @@ class RouterBase(object):
                     total += s.get_num_children(seen)
             return total
 
+    def get_num_children_split(self, seen = set()):
+        successors = list(self.graph.successors(self))
+        if len(successors) is 0:
+            return 1
+        else:
+            total = 0
+            for s in successors:
+                if s not in seen:
+                    seen.add(s)
+                    total += s.get_num_children_split(seen)/len(list(self.graph.predecessors(s)))
+            return total
+
     def update_latency(self):
     # does a recursive update which makes each child router have the latency
     # of its parent plus one
@@ -158,16 +155,19 @@ class RouterBase(object):
         queue = collections.deque()
         seen = set()
         for s in successors:
-            base_latency = s.get_num_children()
+            base_latency = s.get_num_children_split()
             s.latency = base_latency
             queue.append(s)
         while queue:
             router = queue.popleft()
-            latency = router.latency
+            # latency = router.latency
             successors = list(self.graph.successors(router))
             for s in successors:
                 if s not in seen:
-                    s.latency = latency + 1
+                    child_num_split = s.get_num_children_split()
+                    parents = list(self.graph.predecessors(s))
+                    parent_latency_split = sum([p.latency for p in parents]) / len(parents)
+                    s.latency = parent_latency_split + child_num_split
                     queue.append(s)
                     seen.add(s)
 
@@ -400,10 +400,10 @@ if __name__ == '__main__':
     # viewer = CityViewer.CityViewer(city)
     # viewer.draw()
     cities = []
-    for i in range(10):
+    for i in range(1):
         cities.append(City(100, num_routers = 15))
 
-    stop_threshes = [1, 1.5, 2, 3]
+    stop_threshes = [1.5]
     stop_thresh_nums = dict.fromkeys(stop_threshes)
     for stop_thresh in stop_threshes:
         print(stop_thresh)
@@ -418,15 +418,15 @@ if __name__ == '__main__':
             num_connected_spaces.append([])
             city_copy = copy.deepcopy(city)
             city_copy.stop_thresh = stop_thresh
-            for _ in range(100): #steps
+            for _ in range(50): #steps
                 city_copy.step()
                 num_routers[-1].append(len(city_copy.occupied))
                 num_connected[-1].append(len(city_copy.has_wifi_routers))
                 num_disconnected[-1].append(len(city_copy.no_wifi_routers))
                 num_connected_spaces[-1].append(len(city_copy.has_wifi_spaces))
 
-            # viewer = CityViewer.CityViewer(city_copy)
-            # viewer.draw()
+            viewer = CityViewer.CityViewer(city_copy)
+            viewer.draw()
             stop_thresh_nums[stop_thresh] = (num_routers, num_connected, num_disconnected, num_connected_spaces)
     RouterGraphs.graph_routers(stop_thresh_nums)
     # viewer = CityViewer.CityViewer(city_copy)

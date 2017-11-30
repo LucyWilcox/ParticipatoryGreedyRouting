@@ -9,7 +9,7 @@ import RouterGraphs
 
 class RouterBase(object):
 
-    def __init__(self, graph, array, loc, range_access, friendliness):
+    def __init__(self, graph, array, loc, range_access, friendliness, multi_connect = False):
         """ Inputs:
         graph - networkx graph to add itself to
         array - the np array represting the city map
@@ -25,6 +25,7 @@ class RouterBase(object):
         self.loc = loc
         self.range_access = range_access
         self.friendliness = friendliness
+        self.multi_connect = multi_connect
         self.latency = 0
         self.connected_routers = []
         self.has_wifi = False
@@ -119,10 +120,27 @@ class RouterBase(object):
                     try:
                         if other_router.has_wifi:
                             self.try_connection(other_router, city)
-                            break
+                            if not self.multi_connect:
+                                break
                     except AttributeError:
                         pass
 
+
+    def update_latency_old(self):
+        # does a df update which makes each child router have the latency
+        # of its parent plus one
+        neighbors = list(self.graph.neighbors(self))
+        seen = set(neighbors)
+        queue = collections.deque(neighbors)
+        while queue:
+            node = queue.popleft()
+            parent_latency = node.latency
+            for neighbor in node.graph.neighbors(node):
+                if neighbor.latency <= parent_latency:
+                    neighbor.latency = parent_latency + 1
+                if node not in seen:
+                    queue.append(neighbor)
+                    seen.add(neighbor)
 
     def get_num_children(self, seen = set()):
         successors = list(self.graph.successors(self))
@@ -176,11 +194,11 @@ class SuperRouter(RouterBase):
     """ Creates a Router that has a range of 20
     and will always accept connections """
 
-    def __init__(self, graph, array, loc):
+    def __init__(self, graph, array, loc, multi_connect = False):
         """ Starts up as a normal router, but with a large range,
         lots of friendliness, and wifi
         """
-        RouterBase.__init__(self, graph, array, loc, 10, 1000)
+        RouterBase.__init__(self, graph, array, loc, 10, 1000, multi_connect)
         self.has_wifi = True
 
     def accept_connection(self):
@@ -205,10 +223,10 @@ class SuperRouter(RouterBase):
 
 class PersonalRouter(RouterBase):
 
-    def __init__(self, graph, array, loc):
+    def __init__(self, graph, array, loc, multi_connect = False):
         friendliness = np.random.randint(5, 15) # TODO: Lucy's going to test this with some different values
         range_access = 5
-        RouterBase.__init__(self, graph, array, loc, range_access, friendliness)
+        RouterBase.__init__(self, graph, array, loc, range_access, friendliness, multi_connect)
         self.has_wifi = False
 
     def stop_sharing(self, city):
@@ -252,7 +270,7 @@ class PersonalRouter(RouterBase):
 
 class City(object):
 
-    def __init__(self, n, **params):
+    def __init__(self, n, multi_connect = False, **params):
         """Initializes the attributes.
 
         n: number of rows
@@ -269,6 +287,7 @@ class City(object):
         self.has_wifi_spaces = set()
         self.occupied = set()
         self.super_routers_loc = []
+        self.multi_connect = multi_connect
 
         self.stop_thresh = self.params.get('stop_thresh')
 
@@ -304,7 +323,7 @@ class City(object):
                 self.has_wifi_spaces.add(tuple(loc))
 
     def place_router(self):
-        new_router = PersonalRouter(self.graph, self.array, self.random_loc())
+        new_router = PersonalRouter(self.graph, self.array, self.random_loc(), self.multi_connect)
         #print("Placing...")
         new_router.search_for_connection(self)
         if new_router.has_wifi:
@@ -401,7 +420,10 @@ if __name__ == '__main__':
     # viewer.draw()
     cities = []
     for i in range(1):
-        cities.append(City(100, num_routers = 15))
+        cities.append(City(100, multi_connect = True, num_routers = 15))
+
+    # for i in range(1):
+    #     cities.append(City(100, num_routers = 15))
 
     stop_threshes = [1.5]
     stop_thresh_nums = dict.fromkeys(stop_threshes)
@@ -418,7 +440,8 @@ if __name__ == '__main__':
             num_connected_spaces.append([])
             city_copy = copy.deepcopy(city)
             city_copy.stop_thresh = stop_thresh
-            for _ in range(100): #steps
+
+            for _ in range(50): #steps
                 city_copy.step()
                 num_routers[-1].append(len(city_copy.occupied))
                 num_connected[-1].append(len(city_copy.has_wifi_routers))

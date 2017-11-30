@@ -418,7 +418,7 @@ if __name__ == '__main__':
             num_connected_spaces.append([])
             city_copy = copy.deepcopy(city)
             city_copy.stop_thresh = stop_thresh
-            for _ in range(50): #steps
+            for _ in range(100): #steps
                 city_copy.step()
                 num_routers[-1].append(len(city_copy.occupied))
                 num_connected[-1].append(len(city_copy.has_wifi_routers))

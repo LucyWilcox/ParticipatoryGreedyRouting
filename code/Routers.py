@@ -50,10 +50,8 @@ class RouterBase(object):
         """
         
         # Increase latency of self and the other router (simple model)
-        # self.latency += 1 # NOTE: I think that maybe this should be set to the latency of other_router + 1
         if isinstance(other_router, PersonalRouter):
-            other_router.latency += 1 # if other_router is a super node this should stay 0 or something
-            # Add edge (future use?)
+            other_router.latency += 1
             self.graph.add_edge(other_router, self)
         else:
             self.graph.add_edge(other_router, self)
@@ -70,13 +68,6 @@ class RouterBase(object):
             other_router.has_wifi = True
             city.no_wifi_routers.remove(other_router)
             city.has_wifi_routers.append(other_router)
-
-        # Make sure both routers have their range shown
-        for space in self.wifi_range():
-            city.has_wifi_spaces.add(space)
-
-        for space in other_router.wifi_range():
-            city.has_wifi_spaces.add(space)
 
     def try_connection(self, other_router, city):
         """ Attempts to connect the two. """
@@ -125,33 +116,20 @@ class RouterBase(object):
                     except AttributeError:
                         pass
 
-    def get_num_children(self, seen = set()):
-        successors = list(self.graph.successors(self))
-        if len(successors) is 0:
-            return 1
-        else:
-            total = 0
-            for s in successors:
-                if s not in seen:
-                    seen.add(s)
-                    total += s.get_num_children(seen)
-            return total
-
     def get_num_children_split(self, seen = set()):
         successors = list(self.graph.successors(self))
         if len(successors) is 0:
-            return 1
+            return 1/len(list(self.graph.predecessors(self)))
         else:
             total = 0
             for s in successors:
                 if s not in seen:
                     seen.add(s)
-                    total += s.get_num_children_split(seen)/len(list(self.graph.predecessors(s)))
-        return total
+                    total += 1 + s.get_num_children_split(seen)/len(list(self.graph.predecessors(s)))
+            return total
 
     def update_latency(self):
-    # does a recursive update which makes each child router have the latency
-    # of its parent plus one
+    # updates latency so that it is correlated with the average of it's parents latency 
         successors = list(self.graph.successors(self)) #successors of SR
         queue = collections.deque()
         seen = set()
@@ -161,10 +139,7 @@ class RouterBase(object):
             s = queue.popleft()
             successors = list(self.graph.successors(s))
             parents = list(self.graph.predecessors(s))
-            if not parents:
-                s.latency = s.get_num_children_split()
-                queue.extend(successors)
-            elif s not in seen:
+            if s not in seen:
                 parent_latency_split = sum([p.latency for p in parents]) / len(parents)
                 s.latency = parent_latency_split + s.get_num_children_split()
                 queue.extend(successors)
@@ -192,7 +167,6 @@ class SuperRouter(RouterBase):
     def search_for_connection(self, city):
         """ Searches for any non-connected router in range and connects """
         search_spaces = self.wifi_range()
-        #print("Router starts...")
         for space in search_spaces:
             if space in city.occupied:
                 other_router = city.search_for_loc(space, city.no_wifi_routers)
@@ -216,11 +190,8 @@ class PersonalRouter(RouterBase):
         for neighbor in neighbors:
             try:
                 num_disconnected += neighbor.disconnect(self, city)
-                #city.has_wifi_routers.remove(neighbor)
             except Exception as e:
                 pass
-            #city.no_wifi_routers.append(neighbor)
-            #self.graph.remove_edge(self, neighbor)
 
         self.friendliness = 0
         self.latency -= num_disconnected
@@ -258,12 +229,9 @@ class City(object):
         self.params = params
         self.no_wifi_routers = []
         self.has_wifi_routers = []
-        self.has_wifi_spaces = set()
         self.occupied = set()
         self.super_routers_loc = []
         self.multi_connect = multi_connect
-
-        self.stop_thresh = self.params.get('stop_thresh')
 
         self.place_super_routers()
         num_routers = self.params.get('num_routers', self.n//5)
@@ -282,9 +250,6 @@ class City(object):
         num_super_routers = self.params.get('num_super_routers', 5)
 
         # Place super routers at those places
-        #self.has_wifi_routers = [SuperRouter(self.graph, self.array, tuple(locs[i])) 
-        #              for i in range(num_super_routers)]
-
         self.super_routers = [SuperRouter(self.graph, self.array, tuple(locs[i])) 
                        for i in range(num_super_routers)]
 
@@ -292,13 +257,9 @@ class City(object):
         for router in self.super_routers:
             self.occupied.add(router.loc)
             self.super_routers_loc.append(router.loc)
-            for loc in router.wifi_range():
-                self.array[loc] = 5
-                self.has_wifi_spaces.add(tuple(loc))
 
     def place_router(self):
         new_router = PersonalRouter(self.graph, self.array, self.random_loc(), self.multi_connect)
-        #print("Placing...")
         new_router.search_for_connection(self)
         if new_router.has_wifi:
             pass
@@ -323,7 +284,7 @@ class City(object):
             super_router.search_for_connection(self)
 
         for router in self.has_wifi_routers:
-            if router.latency >= (router.friendliness * self.stop_thresh) and len(list(self.graph.successors(router))) > 0:
+            if router.latency >= router.friendliness and len(list(self.graph.successors(router))) > 0:
                 router.stop_sharing(self)
 
         random_order = np.random.permutation(self.no_wifi_routers)
@@ -358,10 +319,6 @@ class City(object):
                 return router
         return None
 
-    def update_wifi_spaces(self):
-        self.has_wifi_spaces = set()
-
-
 def make_locs(n, m):
     """Makes array where each row is an index in an `n` by `m` grid.
     
@@ -387,17 +344,9 @@ def make_visible_locs(array, loc, vision):
     return np.argwhere(can_see > 0)
 
 if __name__ == '__main__':
-    # city = City(100, num_routers = 15, stop_thresh=3)
-    # for _ in range(100):
-    #   city.step()
-    # viewer = CityViewer.CityViewer(city)
-    # viewer.draw()
     cities = []
-    for i in range(1):
+    for i in range(10):
         cities.append(City(100, num_routers = 15))
-
-    # for i in range(1):
-    #     cities.append(City(100, num_routers = 15))
 
     connect = [False, True]
     connect_options = dict.fromkeys(connect)
@@ -413,7 +362,6 @@ if __name__ == '__main__':
             num_disconnected.append([])
             num_connected_spaces.append([])
             city_copy = copy.deepcopy(city)
-            city_copy.stop_thresh = 1
             city_copy.multi_connect = conn
 
             for _ in range(200): #steps
@@ -421,18 +369,8 @@ if __name__ == '__main__':
                 num_routers[-1].append(len(city_copy.occupied))
                 num_connected[-1].append(len(city_copy.has_wifi_routers))
                 num_disconnected[-1].append(len(city_copy.no_wifi_routers))
-                num_connected_spaces[-1].append(len(city_copy.has_wifi_spaces))
+                
             # viewer = CityViewer.CityViewer(city_copy)
             # viewer.draw()
             connect_options[conn] = (num_routers, num_connected, num_disconnected, num_connected_spaces)
-        print('city')
     RouterGraphs.graph_routers(connect_options)
-    # viewer = CityViewer.CityViewer(city_copy)
-    # viewer.draw()
-
-
-    # ratios = []
-    # for _ in range(20):
-    #   ratios.append(city.step())
-
-    # print(ratios)np

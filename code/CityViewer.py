@@ -1,6 +1,7 @@
 from __future__ import print_function, division
 
 import sys
+import copy
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -34,11 +35,17 @@ class CityViewer:
         
         grid: boolean, whether to draw grid lines
         """
-        for loc in self.viewee.has_wifi_spaces:
-            self.viewee.array[loc] = 5
+        self.make_wifi_spaces()
         self.draw_array(self.viewee.array, origin='lower')
         self.draw_agents()
         plt.show()
+
+    def make_wifi_spaces(self):
+        all_connected_routers = copy.deepcopy(self.viewee.super_routers)
+        all_connected_routers.extend(copy.deepcopy(self.viewee.has_wifi_routers))
+        for router in all_connected_routers:
+            for loc in router.wifi_range():
+                self.viewee.array[loc] = 5
 
     def draw_agents(self):
         """Plots the agents.

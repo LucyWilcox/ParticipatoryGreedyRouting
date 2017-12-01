@@ -345,7 +345,7 @@ def make_visible_locs(array, loc, vision):
 
 if __name__ == '__main__':
     cities = []
-    for i in range(10):
+    for i in range(1):
         cities.append(City(100, num_routers = 15))
 
     connect = [False, True]
@@ -370,7 +370,7 @@ if __name__ == '__main__':
                 num_connected[-1].append(len(city_copy.has_wifi_routers))
                 num_disconnected[-1].append(len(city_copy.no_wifi_routers))
                 
-            # viewer = CityViewer.CityViewer(city_copy)
-            # viewer.draw()
+            viewer = CityViewer.CityViewer(city_copy)
+            viewer.draw()
             connect_options[conn] = (num_routers, num_connected, num_disconnected, num_connected_spaces)
     RouterGraphs.graph_routers(connect_options)

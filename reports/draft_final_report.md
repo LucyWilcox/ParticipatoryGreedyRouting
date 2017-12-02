@@ -32,16 +32,29 @@ Where A is the average parent latency, N is the number of parents, and c is the 
 
 To give an example of the latency distribution in these two models, we create a simple graph and show the latency at each node. The S router is a superrouter which contributes no latency to our model.
 
+<p align="center">
+<img src="https://raw.githubusercontent.com/LucyWilcox/ParticipatoryGreedyRouting/master/reports/latencycompare.png" width="600">
+  <br><br>
+  <caption align="bottom"><b>Fig. 1</b> Latency at each router in a hypothetical network in both the single and multi-connetion model.</caption>
+</p>
 
-The left graph is the single-connection model and the right is the multi-connection model. In the single-connection model, D has a latency of 4 because it’s parent, B, has latency 3 (2 childern and itself), so D is that latency plus itself because it has no children. In the multi-connection model D has latency 4.125, because the average latency of its parents is 3, the latency contributed from child F is 0.5 (1 split over each of F’s parents), and contribution from C is 0.75 (1.5 split over each of C’s parents). Our formula then is latency =3 +12(1+1.25)=4.125. The multi-connection model has a slightly lower total latency that the single-connection model, and it is better distributed over the routers.
+The left graph is the single-connection model and the right is the multi-connection model. In the single-connection model, D has a latency of 4 because it’s parent, B, has latency 3 (2 childern and itself), so D is that latency plus itself because it has no children. In the multi-connection model D has latency 4.125, because the average latency of its parents is 3, the latency contributed from child F is 0.5 (1 split over each of F’s parents), and contribution from C is 0.75 (1.5 split over each of C’s parents). Our formula then is latency =3 + 1/2(1 + 1.25) = 4.125. The multi-connection model has a slightly lower total latency that the single-connection model, and it is better distributed over the routers.
 
 When running each of these models over the same 10 different city configurations for 200 steps we find that the two models lead to different behavior. For each model we graph the average number of routers connected and disconnected at each time step as shown in Figure 2.
 
-
+<p align="center">
+<img src="https://raw.githubusercontent.com/LucyWilcox/ParticipatoryGreedyRouting/master/reports/perstep.png" width="800">
+  <br><br>
+  <caption align="bottom"><b>Fig. 2</b> Number of total, connected, and disconnected routers at each step.</caption>
+</p>
 
 These graphs show that the percentage of routers connected is higher in the multi-connection model than in the single-connection model. An example end state after 200 steps for cities with identical superrounter placement is shown below in Figure 3.
 
-
+<p align="center">
+<img src="https://raw.githubusercontent.com/LucyWilcox/ParticipatoryGreedyRouting/master/reports/map.png" width="600">
+  <br><br>
+  <caption align="bottom"><b>Fig. 3</b> A representation of a single starting city configuration after 200 steps in both the single-connection and multi-connection model .</caption>
+</p>
 
 In the single-connection model, wifi does not reach the lower right area of the city. We hypothesize that this is because there are some nodes which end up with latency that are too high and stop sharing for the rest of the simulation.
 

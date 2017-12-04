@@ -2,6 +2,8 @@
 
 ## Kaitlyn Keil and Lucy Wilcox
 
+### Coresponding notebook can be found [here](https://github.com/LucyWilcox/ParticipatoryGreedyRouting/blob/master/code/mesh_notebook.ipynb)
+
 **Abstract**
 
 Networks are becoming more common, complex, and necessary. One common use is to provide internet access to communities, such as the New York City Mesh. However, the current model, which routes all traffic from any given node through a single connecting node until it reaches the source, is not scalable. Access becomes prohibitively slow until users opt out entirely. We examine a separate model where new routers that connect split their traffic through all available connection points. We found that, despite occasionally causing higher overall latency, this tended to allow more participants to gain wifi access.

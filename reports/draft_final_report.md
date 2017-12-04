@@ -11,7 +11,7 @@ With the rise of the internet and, specifically, the Internet of Things, network
 
 We were inspired by this idea of optimizing networks to attempt our own model of a cost-based network. We chose to focus on mesh networks, such as the one based in New York City, where super-routers service an area of routers, and those routers in turn provide wifi to others. Currently, mesh networks can only serve a relatively small community, and the more people trying to access wifi through a bottleneck (such as a single router connected to the super-router), the greater the latency to all. At some point, the latency becomes too great to feasibly use, and people might begin to opt out of the connection. We want to see whether it is better for the community as a whole for each router to only connect to a single other router that has access--in theory decreasing the number of routers connected through any one given router--or to connect to any router with access in range--increasing the number of connected routers for any other router, but also distributing the work routed through any access point. The idea for this multi-connection mesh network in part came from [Strix Systems’ Wireless Mesh](http://www.strixsystems.com/products/datasheets/strixwhitepaper_multihop.pdf).
 
-We created a model of a mesh network to test our hypothesis on based off of [NYC Mesh’s description](https://nycmesh.net/). This model includes super-routers, which reliably provide internet to routers in range, and regular routers which can provide wifi to their neighbors in a smaller range. We model our city as a 100 by 100 unit grid where at each position there can be one router. Cities are initially created with 15 routers, and 5 super-routers. To model the expansion of the mesh network, during each timestep several steps occur:
+We create a model of a mesh network to test our hypothesis on based off of [NYC Mesh’s description](https://nycmesh.net/). This model includes super-routers, which reliably provide internet to routers in range, and regular routers which can provide wifi to their neighbors in a smaller range. We model our city as a 100 by 100 unit grid where at each position there can be one router. Cities are initially created with 15 routers, and 5 super-routers. To model the expansion of the mesh network, during each timestep several steps occur:
 - Super-routers attempt to connect with any router in range
 - Regular routers attempt to connect to other routers, with wifi, in range
 - Router owners decide if there is too much latency due to sharing with others and have the option to stop sharing
@@ -25,10 +25,10 @@ We model two different styles of mesh network. In both, when a router is added, 
 Latency is calculated based on the number of ‘child’ routers attempting to transmit through a given router as well as the latency of the routers above. The equation becomes:
 
 <p align="center">
-latency = A + 1/N(1 + c)
+latency = A + (1 + c)/N
 </p>
 
-Where A is the average parent latency, N is the number of parents, and c is the child contribution. If a node has no children, its contribution is 1N. If it is connected to a super-router, A is 0. When calculating child contribution, the A-term is ignored. In the traditional model, N is always 1 and c is the number of ‘child’ nodes in the graph.
+where A is the average parent latency, N is the number of parents, and c is the child contribution. If a node has no children, its contribution is 1/N. If it is connected to a super-router, A is 0. When calculating child contribution, the A-term is ignored. In the traditional model, N is always 1 and c is the number of ‘child’ nodes in the graph.
 
 To give an example of the latency distribution in these two models, we create a simple graph and show the latency at each node. The S router is a superrouter which contributes no latency to our model.
 

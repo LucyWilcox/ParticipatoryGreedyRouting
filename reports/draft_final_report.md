@@ -4,7 +4,7 @@
 
 **Abstract**
 
-TODO
+Networks are becoming more common, complex, and necessary. One common use is to provide internet access to communities, such as the New York City Mesh. However, the current model, which routes all traffic from any given node through a single connecting node until it reaches the source, is not scalable. Access becomes prohibitively slow until users opt out entirely. We examine a separate model where new routers that connect split their traffic through all available connection points. We found that, despite occasionally causing higher overall latency, this tended to allow more participants to gain wifi access.
 _________________________
 
 With the rise of the internet and, specifically, the Internet of Things, networks are becoming increasingly necessary, whether it be between multiple devices owned by a single individual or across many households. These networks can allow for the transferal of data to a separate device as well as the delivery of a commodity such as wifi from one point to another. However, this transferral does not come without some cost. The more data being sent through a single point, or node, the slower that node will be able to operate. Kleineberg and Helbing used this cost model to examine networks in which each node has the option to be either a cooperator, which passes along a packet of data, or a defector, which refuses to incur the cost of passing the data, to create a participatory greedy routing network. Through this model, they begin to analyze what factors contribute to the system being more likely to end in a state of high performance, where most packets are successfully transmitted.

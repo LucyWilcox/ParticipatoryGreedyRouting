@@ -17,7 +17,7 @@ We want to see whether it is better for the community as a whole for each router
 We create a model of a mesh network to test our hypothesis on based off of [NYC Mesh’s description](https://nycmesh.net/). This model includes super-routers, which reliably provide internet to routers in range, and regular routers which can provide wifi to their neighbors in a smaller range. We model our city as a 100 by 100 unit grid where at each position there can be one router. Cities are initially created with 15 routers, and 5 super-routers. To model the expansion of the mesh network, during each timestep several steps occur:
 - Super-routers attempt to connect with any router in range
 - Regular routers attempt to connect to other routers, with wifi, in range
-- Router owners decide if there is too much latency due to sharing with others and have the option to stop sharing
+- Router owners decide if there is too much latency (latency is larger than their randomly assigned friendliness) due to sharing with others and have the option to stop sharing
 - A number of new routers are added to the city (people deciding to join the mesh network)
 - The latency of regular routers is updated
 

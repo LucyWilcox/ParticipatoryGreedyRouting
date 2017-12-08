@@ -6,7 +6,7 @@ Question:  What is your understanding of the experiment the team is replicating?
 
 Methodology: Do you understand the methodology?  Does it make sense for the question?  Are there limitations you see that the team did not address?
 
-#### It seems like the model yield obvious results. It appears that you are saying that with an increased chance of interaction between different races they will be more likely to get married. Though this probably has an impact, I don’t feel like it’s compelling enough for a conclusion like this. 
+#### It seems like the model yields obvious results. It appears that you are saying that with an increased chance of interaction between different races they will be more likely to get married. Though this probably has an impact, I don’t feel like it’s compelling enough for a conclusion like this. 
 
 #### Maybe it would help if the paper explained what compatibility means. If this is somehow impacted by race that might make help the question make more sense (anecdotal, but saying this because as someone in an interracial relationship I feel like there are distinct issues which prevent “identical personalities”, your definition of compatibility). Maybe your model you somehow speak to the reason there is an increased chance of interracial matching in online dating instead of just assuming it as true.
 

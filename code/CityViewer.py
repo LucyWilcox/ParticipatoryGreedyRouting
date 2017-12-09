@@ -66,20 +66,29 @@ class CityViewer:
         """
         connected_routers = self.viewee.has_wifi_routers
         unconnected_routers = self.viewee.no_wifi_routers
-        c_rows, c_cols = np.transpose([router.loc for router in connected_routers])
+        if len(connected_routers) > 0:
+            c_rows, c_cols = np.transpose([router.loc for router in connected_routers])
+            xs_c = c_cols + 0.5
+            ys_c = c_rows + .05
+        else:
+            xs_c = np.empty()
+            ys_c = np.empty()
 
-        u_rows, u_cols = np.transpose([router.loc for router in unconnected_routers])
+        if len(unconnected_routers) > 0:
+            u_rows, u_cols = np.transpose([router.loc for router in unconnected_routers])
+            xs_u = u_cols + 0.5
+            ys_u = u_rows + .05
+        else:
+            xs_u = np.empty()
+            ys_u = np.empty()
 
-        s_rows, s_cols = np.transpose([loc for loc in self.viewee.super_routers_loc])
-
-        xs_c = c_cols + 0.5
-        ys_c = c_rows + .05
-
-        xs_u = u_cols + 0.5
-        ys_u = u_rows + 0.5
-
-        xs_s = s_cols + 0.5
-        ys_s = s_rows + 0.5
+        if len(self.viewee.super_routers_loc) > 0:
+            s_rows, s_cols = np.transpose([loc for loc in self.viewee.super_routers_loc])
+            xs_s = s_cols + 0.5
+            ys_s = s_rows + .05
+        else:
+            xs_s = np.empty()
+            ys_s = np.empty()
 
         return xs_c, xs_u, xs_s, ys_c, ys_u, ys_s
 

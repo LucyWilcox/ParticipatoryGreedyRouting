@@ -22,12 +22,12 @@ def graph_routers(data):
 		# v_3_z = [sum(x) for x in zip(*v_3)]
 		
 		x_axis = range(len(v_0_z))
-		all_r = plt.plot(x_axis, v_0_z, 's', label="all routers")
-		conn_r = plt.plot(x_axis, v_1_z, 's', label="all connected routers")
-		disconn_r = plt.plot(x_axis, v_2_z, 's', label='all disconneced routers')
+		conn_r = plt.plot(x_axis, v_1_z, 's', color = 'r', label="all connected routers")
+		disconn_r = plt.plot(x_axis, v_2_z, 's', color = 'b', label='all disconneced routers')
 		plt.ylabel("Num Routers")
 		plt.xlabel("Steps")
-		plt.title("Connected and Disconnected Routers per Step")
+		title_str = "Connected and Disconnected Routers per Step, " + str(k) + " Model"
+		plt.title(title_str)
 		plt.legend(loc='upper left')
 		plt.tight_layout()
 		plt.show()

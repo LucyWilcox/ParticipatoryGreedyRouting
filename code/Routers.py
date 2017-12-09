@@ -38,8 +38,13 @@ class RouterBase(object):
         if self.latency >= self.friendliness: 
             # if the latency is too high, the router will refuse connection
             return False
-        ratio = self.latency/self.friendliness # chance of accept goes down as latency goes up
-        return np.random.choice([True, False], p = [1-ratio, ratio])
+        else:
+            ratio = self.latency/self.friendliness
+            try:
+                res = np.random.choice([True, False], p = [1-ratio, ratio])# chance of accept goes down as latency goes up
+            except ValueError:
+                res = False
+            return res
 
     def add_connection(self, other_router, city):
         """ Adds the connection and makes sure all relevent lists are
@@ -193,23 +198,29 @@ class PersonalRouter(RouterBase):
             except Exception as e:
                 pass
 
-        self.friendliness = 0
+        self.friendliness = 1
         self.latency -= num_disconnected
 
     def disconnect(self, other_router, city):
         """ Disconnects self and all routers connected
         to self. Returns the number of routers disconnected.
         """
-        self.latency = 0
-        disconnected = 1
-        city.has_wifi_routers.remove(self)
-        city.no_wifi_routers.append(self)
         self.graph.remove_edge(other_router, self)
-        for neighbor in self.graph.neighbors(self):
-            try:
-                disconnected += neighbor.disconnect(self, city)
-            except Exception as e:
-                pass
+        no_connection = True
+        for parent in self.predecessors:
+            if parent.has_wifi:
+                no_connection = False
+                break
+        if no_connection:
+            self.latency = 0
+            disconnected = 1
+            city.has_wifi_routers.remove(self)
+            city.no_wifi_routers.append(self)
+            for neighbor in self.graph.neighbors(self):
+                try:
+                    disconnected += neighbor.disconnect(self, city)
+                except Exception as e:
+                    pass
         return disconnected
 
 
@@ -355,12 +366,10 @@ if __name__ == '__main__':
         num_routers = []
         num_connected = []
         num_disconnected = []
-        num_connected_spaces = []
         for city in cities: # test on different cities
             num_routers.append([])
             num_connected.append([])
             num_disconnected.append([])
-            num_connected_spaces.append([])
             city_copy = copy.deepcopy(city)
             city_copy.multi_connect = conn
 
@@ -372,5 +381,5 @@ if __name__ == '__main__':
                 
             viewer = CityViewer.CityViewer(city_copy)
             viewer.draw()
-            connect_options[conn] = (num_routers, num_connected, num_disconnected, num_connected_spaces)
+            connect_options[conn] = (num_routers, num_connected, num_disconnected)
     RouterGraphs.graph_routers(connect_options)

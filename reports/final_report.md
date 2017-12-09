@@ -20,6 +20,8 @@ We create a model of a mesh network to test our hypothesis on based off of [NYC 
 - A number of new routers are added to the city (people deciding to join the mesh network)
 - The latency of regular routers is updated
 
+Each router has three main attributes: friendliness, range, and latency. Friendliness is a randomized value between 5 and 15 that defines the maximum latency a router owner is willing to put up with before opting out. Range is a set value that defines how far it can 'see'. A router can connect to any wifi source within its range, and will automatically be connected if it is within the range of a super-router (which is larger). On our grid, super-routers have a range of 10 and personal routers have a range of 5. We will discuss latency and the way we calculated it more below.
+
 Router owners take latency into account when making decisions. A router owner will not let any routers connect to it and will stop sharing with any routers it currently provides internet to if their randomly assigned friendliness is lower than the latency they are experiencing. This corresponds to someone putting a password on their access, or opting out of the network. They are also more likely to share wifi if they have a low latency relative to their friendliness.
 
 We model two different styles of mesh network. In both, when a router is added, it attempts to connect to another router with wifi-access in range. In the first model, the traditional mesh network, as soon as a router connects it stops looking for any other connections. In other words, each router has a single ‘parent’ router that supplies it with wifi. In the second model, each router attempts to connect to every router with access in range, then shares its load equally across all of them.

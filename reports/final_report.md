@@ -9,14 +9,15 @@
 Networks are becoming more common, complex, and necessary. One common use is to provide internet access to communities, such as the New York City Mesh. However, the current model, which routes all traffic from any given node through a single connecting node until it reaches the source, is not scalable. Access becomes prohibitively slow until users opt out entirely. We examine a separate model where new routers that connect split their traffic through all available connection points. We found that, despite occasionally causing higher overall latency, this tended to allow more participants to gain wifi access.
 _________________________
 
-With the rise of the internet and, specifically, the Internet of Things, networks are becoming increasingly necessary, whether it be between multiple devices owned by a single individual or across many households. These networks can allow for the transferal of data to a separate device as well as the delivery of a commodity such as wifi from one point to another. However, this transferral does not come without some cost. The more data being sent through a single point, or node, the slower that node will be able to operate. Kleineberg and Helbing used this cost model to examine networks in which each node has the option to be either a cooperator, which passes along a packet of data, or a defector, which refuses to incur the cost of passing the data, to create a participatory greedy routing network. Through this model, they begin to analyze what factors contribute to the system being more likely to end in a state of high performance, where most packets are successfully transmitted.
+Mesh networks have been used in many commercial applications, however we are focusing on their use in cities where they allow neighbors to connect to each others wifi instead of each person connecting directly to an internet service provider. We explore the growth of mesh networks, such as the one based in New York City where super-routers, high-bandwidth routers which connect the rest of the mesh to it to the greater internet, service an area of routers, and those routers in turn provide wifi to others. Currently, mesh networks generally only serve a relatively small community, and as more people try to access wifi through a bottleneck (such as a single router connected to the super-router), latency increases. At some point, the latency becomes too great to feasibly use, and people might begin to opt out of the connection. We explore mesh network architectures which could reduce this latency after reading and replicating a model made by Kleineberg and Helbing discussed in "Collective navigation of complex networks: Participatory greedy routing". They create an agent based cost-benefit model to where each node has the option to be either a cooperator, which passes along a packet of data, or a defector, which refuses to incur the cost of passing the data, to create a participatory greedy routing network. Next they identify ways to improve the likelihood an IP routing network stabilizes in a state of high performance, where most packets are successfully transmitted.
 
-We were inspired by this idea of optimizing networks to attempt our own model of a cost-based network. We chose to focus on mesh networks, such as the one based in New York City, where super-routers service an area of routers, and those routers in turn provide wifi to others. Currently, mesh networks can only serve a relatively small community, and the more people trying to access wifi through a bottleneck (such as a single router connected to the super-router), the greater the latency to all. At some point, the latency becomes too great to feasibly use, and people might begin to opt out of the connection. We want to see whether it is better for the community as a whole for each router to only connect to a single other router that has access--in theory decreasing the number of routers connected through any one given router--or to connect to any router with access in range--increasing the number of connected routers for any other router, but also distributing the work routed through any access point. The idea for this multi-connection mesh network in part came from [Strix Systems’ Wireless Mesh](http://www.strixsystems.com/products/datasheets/strixwhitepaper_multihop.pdf).
+We want to see whether it is better for the community as a whole for each router to only connect to a single other router with wifi access, or to connect to all routers with access within range. In theory connecting to a single router would decrease the number of routers connected through any one given router. Connecting to all routers with access would distribute the work routed through any access point. The idea for this multi-connection mesh network in part came from [Strix Systems’ Wireless Mesh](http://www.strixsystems.com/products/datasheets/strixwhitepaper_multihop.pdf).
+
 
 We create a model of a mesh network to test our hypothesis on based off of [NYC Mesh’s description](https://nycmesh.net/). This model includes super-routers, which reliably provide internet to routers in range, and regular routers which can provide wifi to their neighbors in a smaller range. We model our city as a 100 by 100 unit grid where at each position there can be one router. Cities are initially created with 15 routers, and 5 super-routers. To model the expansion of the mesh network, during each timestep several steps occur:
 - Super-routers attempt to connect with any router in range
 - Regular routers attempt to connect to other routers, with wifi, in range
-- Router owners decide if there is too much latency due to sharing with others and have the option to stop sharing
+- Router owners decide if there is too much latency (latency is larger than their randomly assigned friendliness) due to sharing with others and have the option to stop sharing
 - A number of new routers are added to the city (people deciding to join the mesh network)
 - The latency of regular routers is updated
 
@@ -32,7 +33,7 @@ latency = A + (1 + c)/N
 
 where A is the average parent latency, N is the number of parents, and c is the child contribution. If a node has no children, its contribution is 1/N. If it is connected to a super-router, A is 0. When calculating child contribution, the A-term is ignored. In the traditional model, N is always 1 and c is the number of ‘child’ nodes in the graph.
 
-To give an example of the latency distribution in these two models, we create a simple graph and show the latency at each node. The S router is a superrouter which contributes no latency to our model.
+To give an example of the latency distribution in these two models, we create a simple graph and show the latency at each node. The S router is a super-router which contributes no latency to our model.
 
 <p align="center">
 <img src="https://raw.githubusercontent.com/LucyWilcox/ParticipatoryGreedyRouting/master/reports/latencycompare.png" width="600">
@@ -50,7 +51,7 @@ When running each of these models over the same 10 different city configurations
   <caption align="bottom"><b>Fig. 2</b> Number of total, connected, and disconnected routers at each step.</caption>
 </p>
 
-These graphs show that the percentage of routers connected is higher in the multi-connection model than in the single-connection model. An example end state after 200 steps for cities with identical superrounter placement is shown below in Figure 3.
+These graphs show that the percentage of routers connected is higher in the multi-connection model than in the single-connection model. An example end state after 200 steps for cities with identical super-rounter placement is shown below in Figure 3.
 
 <p align="center">
 <img src="https://raw.githubusercontent.com/LucyWilcox/ParticipatoryGreedyRouting/master/reports/map.png" width="600">
@@ -71,5 +72,6 @@ Kleineberg and Helbing create an agent-based model where agents represents nodes
 [“Solving the Wireless Mesh Multi-Hop Dilemma”](http://www.strixsystems.com/products/datasheets/strixwhitepaper_multihop.pdf) *Strix Systems: Networks Without Wires, 2005*
 
 Strix Systems discusses methods to reduce latency, or bandwidth degradation, when routers are several hops away from the supernodes. They mention the multi-radio technique where there are different links for client traffic, ingress wireless backhaul traffic, and egress backhaul traffic. This allows for nodes to receive and transmit simultaneously. We do not replicate this architecture, but were inspired by the concept of splitting traffic as they also discussing have main and failover wireless links.
+
 
 

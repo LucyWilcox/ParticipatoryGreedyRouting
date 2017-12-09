@@ -364,7 +364,7 @@ if __name__ == '__main__':
             city_copy = copy.deepcopy(city)
             city_copy.multi_connect = conn
 
-            for _ in range(200): #steps
+            for _ in range(400): #steps
                 city_copy.step()
                 num_routers[-1].append(len(city_copy.occupied))
                 num_connected[-1].append(len(city_copy.has_wifi_routers))

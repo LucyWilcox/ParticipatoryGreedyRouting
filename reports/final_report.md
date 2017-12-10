@@ -42,29 +42,37 @@ To give an example of the latency distribution in these two models, we create a 
   <caption align="bottom"><b>Fig. 1</b> Latency at each router in a hypothetical network in both the single and multi-connetion model.</caption>
 </p>
 
-The left graph is the single-connection model and the right is the multi-connection model. In the single-connection model, D has a latency of 4 because it’s parent, B, has latency 3 (2 childern and itself), so D is that latency plus itself because it has no children. In the multi-connection model D has latency 4.125, because the average latency of its parents is 3, the latency contributed from child F is 0.5 (1 split over each of F’s parents), and contribution from C is 0.75 (1.5 split over each of C’s parents). Our formula then is latency =3 + 1/2(1 + 1.25) = 4.125. The multi-connection model has a slightly lower total latency that the single-connection model, and it is better distributed over the routers.
+The left graph is the single-connection model and the right is the multi-connection model. In the single-connection model, D has a latency of 4 because it’s parent, B, has latency 3 (2 childern and itself), so D is that latency plus itself because it has no children. In the multi-connection model D has latency 4.125, because the average latency of its parents is 3, the latency contributed from child F is 0.5 (1 split over each of F’s parents), and contribution from C is 0.75 (1.5 split over each of C’s parents). Our formula then is latency =3 + 1/2(1 + 1.25) = 4.125.  With this latency model, we test if the difference in latency distribution or the graph structure impacts the overall connectedness of the network.
 
-When running each of these models over the same 10 different city configurations for 200 steps we find that the two models lead to different behavior. For each model we graph the average number of routers connected and disconnected at each time step as shown in Figure 2.
+When running each of these models over the same 10 different city configurations for 200 steps we find that the two models lead to different behavior. For each model we graph the average number of routers connected and disconnected at each time step, the single-connection models is shown in Figure 2 and the multi-connection model in Figure 3.
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/LucyWilcox/ParticipatoryGreedyRouting/master/reports/perstep.png" width="800">
+<img src="https://raw.githubusercontent.com/LucyWilcox/ParticipatoryGreedyRouting/master/reports/Figure_1-31SC.png" width="800">
   <br><br>
-  <caption align="bottom"><b>Fig. 2</b> Average number of connected and disconnected routers at each step for ten runs. The multi-connection model approaches the rate of routers added (15/step), while the single-connection stays fairly even between number of connected routers and number of disconnected.</caption>
+  <caption align="bottom"><b>Fig. 2</b> Average number of connected and disconnected routers at each step for ten runs. The while the single-connection model stays fairly even between number of connected routers and number of disconnected.</caption>
 </p>
 
-These graphs show that the percentage of routers connected is higher in the multi-connection model than in the single-connection model. An example end state after 200 steps for cities with identical super-rounter placement is shown below in Figure 3.
+<p align="center">
+<img src="https://raw.githubusercontent.com/LucyWilcox/ParticipatoryGreedyRouting/master/reports/Figure_1-31MC.png" width="800">
+  <br><br>
+  <caption align="bottom"><b>Fig. 3</b> Average number of connected and disconnected routers at each step for ten runs. The multi-connection model approaches the rate of routers added (15/step) causing most of the city to be connected.</caption>
+</p>
+
+These graphs show that the percentage of routers connected is higher in the multi-connection model than in the single-connection model. An example end state after 200 steps for cities with identical super-rounter placement is shown below in Figure 4.
 
 <p align="center">
 <img src="https://raw.githubusercontent.com/LucyWilcox/ParticipatoryGreedyRouting/master/reports/map.png" width="600">
   <br><br>
-  <caption align="bottom"><b>Fig. 3</b> A representation of a single starting city configuration after 200 steps in both the single-connection and multi-connection model. Red circles are the super-routers, and are the same for both models. Red pixels are connected routers. Blue pixels are disconnected routers. Orange background shows the overall range of the routers that have wifi access. Despite the same initial set-up of super-routers, the multi-connection model covers more area with wifi, and more of the routers within that area are connected.</caption>
+  <caption align="bottom"><b>Fig. 4</b> A representation of a single starting city configuration after 200 steps in both the single-connection and multi-connection model. Red circles are the super-routers, and are the same for both models. Red pixels are connected routers. Blue pixels are disconnected routers. Orange background shows the overall range of the routers that have wifi access. Despite the same initial set-up of super-routers, the multi-connection model covers more area with wifi, and more of the routers within that area are connected.</caption>
 </p>
 
 In the single-connection model, wifi does not reach the lower right area of the city. We hypothesize that this is because there are some nodes which end up with latency that are too high and stop sharing for the rest of the simulation.
 
-We ran both of these models several times. From this, we found that the multi-connection model did not tend to have significantly lower or higher latency for each router than the single-connection. In fact, at times the mean latency was 1.5 points higher than that of the traditional model, with a higher median value and a lower standard deviation. Other times, each of these value was lower. This may be because the overall latency grows at a slower pace, so disconnections happen less often and the latency slowly builds.
+We ran both of these models several times. From this, we found that the multi-connection model did not tend to have significantly lower or higher latency for each router than the single-connection. In fact, in some models the mean latency is 1.5 points higher than that of the traditional model, with a higher median value and a lower standard deviation. Other times, each of these value is lower. This may be because the overall latency grows at a slower pace, so disconnections happen less often and the latency slowly builds.
 
-Our simulation suggests that a mesh network architecture which supports multiple-connection between routers would yield a more connected city mesh, where router owners on average experience less latency and in turn are less likely to stop sharing their wifi. There are some other possible ways to optimize coverage which could be tested such as intelligent placement of the superrouters or other incentives for routers owners to share their internet. NYC Mesh does this by encouraging restaurant owners to join the mesh because they often already have open wifi. Other considerations could also be taken into account like the required direct line of sight required to connect with a super-router. 
+Our simulation suggests that a mesh network architecture which supports multiple-connection between routers would yield a more connected city mesh. This could be because the structure of the multi-connection model causes it to be more resilient even with models with higher latency. In the multi-connection model, if a router has multiple wifi connections and one stops sharing, the router will still receive wifi from its other connections. This means that fewer routers need to have a high friendliness (which translates to tolerance for latency) for the network to cover most of the city.. 
+
+There are some other possible ways to optimize coverage which could be tested such as intelligent placement of the super-routers or other incentives for routers owners to share their internet. NYC Mesh does this by encouraging restaurant owners to join the mesh because they often already have open wifi. Other considerations could also be taken into account like the required direct line of sight required to connect with a super-router. 
 
 ## Bibliography 
 

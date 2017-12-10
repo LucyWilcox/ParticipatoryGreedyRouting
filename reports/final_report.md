@@ -61,9 +61,9 @@ When running each of these models over the same 10 different city configurations
 These graphs show that the percentage of routers connected is higher in the multi-connection model than in the single-connection model. An example end state after 200 steps for cities with identical super-rounter placement is shown below in Figure 4.
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/LucyWilcox/ParticipatoryGreedyRouting/master/reports/map.png" width="600">
+<img src="https://raw.githubusercontent.com/LucyWilcox/ParticipatoryGreedyRouting/master/reports/scmcmamp.png" width="600">
   <br><br>
-  <caption align="bottom"><b>Fig. 4</b> A representation of a single starting city configuration after 200 steps in both the single-connection and multi-connection model. Red circles are the super-routers, and are the same for both models. Red pixels are connected routers. Blue pixels are disconnected routers. Orange background shows the overall range of the routers that have wifi access. Despite the same initial set-up of super-routers, the multi-connection model covers more area with wifi, and more of the routers within that area are connected.</caption>
+  <caption align="bottom"><b>Fig. 4</b> A representation of a single starting city configuration after 200 steps in both the single-connection and multi-connection model. Red circles with black borders are the super-routers, and are the same for both models. Red pixels are connected routers. Blue pixels are disconnected routers. Orange background shows the overall range of the routers that have wifi access. Despite the same initial set-up of super-routers, the multi-connection model covers more area with wifi, and more of the routers within that area are connected.</caption>
 </p>
 
 In the single-connection model, wifi does not reach the lower right area of the city. We hypothesize that this is because there are some nodes which end up with latency that are too high and stop sharing for the rest of the simulation.

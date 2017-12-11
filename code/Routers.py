@@ -361,12 +361,15 @@ if __name__ == '__main__':
 
     connect = [False, True]
     connect_options = dict.fromkeys(connect)
+    connect_options_final = dict()
     for conn in connect_options:
         print(conn)
         num_routers = []
         num_connected = []
         num_disconnected = []
         for city in cities: # test on different cities
+            print(city) 
+
             num_routers.append([])
             num_connected.append([])
             num_disconnected.append([])
@@ -378,8 +381,11 @@ if __name__ == '__main__':
                 num_routers[-1].append(len(city_copy.occupied))
                 num_connected[-1].append(len(city_copy.has_wifi_routers))
                 num_disconnected[-1].append(len(city_copy.no_wifi_routers))
-                
             viewer = CityViewer.CityViewer(city_copy)
             viewer.draw()
-            connect_options[conn] = (num_routers, num_connected, num_disconnected)
-    RouterGraphs.graph_routers(connect_options)
+            if conn:
+                connect_options_final['Multi-Connect'] = (num_routers, num_connected, num_disconnected)
+            else:
+                connect_options_final['Single-Connect'] = (num_routers, num_connected, num_disconnected)
+
+    RouterGraphs.graph_routers(connect_options_final)

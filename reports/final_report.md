@@ -44,7 +44,7 @@ To give an example of the latency distribution in these two models, we create a 
 
 The left graph is the single-connection model and the right is the multi-connection model. In the single-connection model, D has a latency of 4 because it’s parent, B, has latency 3 (2 childern and itself), so D is that latency plus itself because it has no children. In the multi-connection model D has latency 4.125, because the average latency of its parents is 3, the latency contributed from child F is 0.5 (1 split over each of F’s parents), and contribution from C is 0.75 (1.5 split over each of C’s parents). Our formula then is latency =3 + 1/2(1 + 1.25) = 4.125.  With this latency model, we test if the difference in latency distribution or the graph structure impacts the overall connectedness of the network.
 
-When running each of these models over the same 10 different city configurations for 200 steps we find that the two models lead to different behavior. For each model we graph the average number of routers connected and disconnected at each time step, the single-connection models is shown in Figure 2 and the multi-connection model in Figure 3.
+When running each of these models over the same 10 different city configurations for 200 steps we find that the two models lead to different behavior. For each model we graph the average number of routers connected and disconnected at each time step. Figure 2 shows the traditional model, while Figure 3 contains the results of the multi-connection model.
 
 <p align="center">
 <img src="https://raw.githubusercontent.com/LucyWilcox/ParticipatoryGreedyRouting/master/reports/Figure_1-31SC.png" width="800">
@@ -58,7 +58,7 @@ When running each of these models over the same 10 different city configurations
   <caption align="bottom"><b>Fig. 3</b> Average number of connected and disconnected routers at each step for ten runs. The multi-connection model approaches the rate of routers added (15/step) causing most of the city to be connected.</caption>
 </p>
 
-These graphs show that the percentage of routers connected is higher in the multi-connection model than in the single-connection model. An example end state after 200 steps for cities with identical super-rounter placement is shown below in Figure 4.
+These graphs show that the percentage of routers connected is higher in the multi-connection model than in the single-connection model. An example end state after 150 steps for cities with identical super-rounter placement is shown below in Figure 4.
 
 <p align="center">
 <img src="https://raw.githubusercontent.com/LucyWilcox/ParticipatoryGreedyRouting/master/reports/scmcmamp.png" width="600">
